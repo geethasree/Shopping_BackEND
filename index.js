@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 
 
 require('dotenv').config();
-app.use(cors())
+app.use(cors()) 
 app.use(express.json())
 app.use(express.urlencoded())
 const nodemailer = require('nodemailer');
@@ -103,12 +103,12 @@ app.post('/login', (req, res) => {
 app.post('/signup', (req, res) => {
   const { email, password } = req.body;
 
-  db.query('SELECT * FROM users1 WHERE email = ?', [email], (error, results) => {
+  db.query('SELECT * FROM users WHERE email = ?', [email], (error, results) => {
 
     if (results.length > 0) {
           res.status(200).json({ message: 'Email Already exists' })
     } else {
-      db.query('INSERT INTO users1 (email, password) VALUES (?, ?)', [email, password], (insertError, insertResults) => {
+      db.query('INSERT INTO users (email, password) VALUES (?, ?)', [email, password], (insertError, insertResults) => {
         if (insertError) {
           console.log(insertError);
             res.json({ error: 'Error occurred while inserting data' });
@@ -119,9 +119,32 @@ app.post('/signup', (req, res) => {
     });
     }
   });
+
 });
 
 
+app.get('/categories', (req, res) => {
+  db.query('SELECT * FROM product_categories', (error, results) => {
+    if (error) {
+      console.error('Error fetching categories:', error);
+      res.json({ error: 'Internal server error' });
+    } else {
+      res.status(200).json(results);
+    }
+  });
+});
+
+app.post('/get_products_from_types', (req, res) => {
+  const type = req.body.type;
+  db.query('SELECT * FROM productData WHERE type = ?', [type], (error, results) => {
+    if (error) {
+      console.error('Error fetching data:', error);
+      res.json({ error: 'Internal server error' });
+    } else {
+      res.status(200).json(results);
+    }
+  });
+});
 
 
 
