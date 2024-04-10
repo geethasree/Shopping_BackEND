@@ -83,9 +83,9 @@ app.post('/sendEmailOTP', (req, res) => {
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
 
-  db.query('SELECT * FROM users1 WHERE email = ?', [email], (error, results) => {
+  db.query('SELECT * FROM users WHERE email = ?', [email], (error, results) => {
 
-    if (results.length > 0) {
+    if (results.length > 0) { 
         const user_id = results[0].user_id;
         if (results[0].password === password) {
           res.status(200).json({ message: 'Login Successful', email, user_id })
@@ -145,6 +145,37 @@ app.post('/get_products_from_types', (req, res) => {
     }
   });
 });
+
+ 
+app.post('/orders', (req, res) => {
+  const { email,product_name, price, quantity,image, size, color,order_date } = req.body;
+  const sql = 'INSERT INTO orders (email,product_name, price,image, quantity, size, color,order_date) VALUES (?, ?, ?,?, ?, ?, ?, ?)';
+  const values = [email,product_name, price, image,quantity, size, color,order_date];
+  
+  db.query(sql, values, (error, results) => {
+    if (error) {
+      console.error('Error executing query:', error);
+      res.json({ error: 'Internal server error' });
+    } else {
+      res.json({ message: 'Data added successfully', orderId: results.insertId });
+    }
+  });
+});
+
+app.post('/getOrders', (req, res) => {
+  const email = req.body.email;
+  const sql = 'SELECT * FROM orders WHERE email = ?';
+
+  db.query(sql, [email], (err, results) => {
+    if (err) {
+      console.error('Error executing query: ' + err);
+      res.send('Error retrieving data');
+      return;
+    }
+    res.json(results);
+  });
+});
+
 
 
 
