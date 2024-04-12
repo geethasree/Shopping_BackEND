@@ -148,9 +148,10 @@ app.post('/get_products_from_types', (req, res) => {
 
  
 app.post('/orders', (req, res) => {
-  const { email,product_name, price, quantity,image, size, color,order_date } = req.body;
-  const sql = 'INSERT INTO orders (email,product_name, price,image, quantity, size, color,order_date) VALUES (?, ?, ?,?, ?, ?, ?, ?)';
-  const values = [email,product_name, price, image,quantity, size, color,order_date];
+  const { email,product_name, price, quantity,image, size, color,order_date,type } = req.body;
+  console.log(type);
+  const sql = 'INSERT INTO orders (email,product_name, price,image, quantity, size, color,order_date,type) VALUES (?, ?, ?, ?,?, ?, ?, ?, ?)';
+  const values = [email,product_name, price, image,quantity, size, color,order_date,type];
   
   db.query(sql, values, (error, results) => {
     if (error) {
@@ -176,6 +177,48 @@ app.post('/getOrders', (req, res) => {
   });
 });
 
+
+
+app.get('/typePercentage', (req, res) => {
+  const query = 'SELECT type as name, SUM(quantity) as total_quantity, (SUM(quantity) / (SELECT SUM(quantity) FROM orders)) * 100 as data FROM orders GROUP BY type';
+
+  db.query(query, (error, results) => {
+    if (error) {
+      console.error('Error executing SQL query: ' + error.stack);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+    res.json(results);
+  });
+});
+
+
+app.get('/sizePercentage', (req, res) => {
+  const query = 'SELECT size as name, SUM(quantity) as total_quantity, (SUM(quantity) / (SELECT SUM(quantity) FROM orders)) * 100 as data FROM orders GROUP BY size';
+
+  db.query(query, (error, results) => {
+    if (error) {
+      console.error('Error executing SQL query: ' + error.stack);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+    res.json(results);
+  });
+});
+
+
+app.get('/colorPercentage', (req, res) => {
+  const query = 'SELECT color as name, SUM(quantity) as total_quantity, (SUM(quantity) / (SELECT SUM(quantity) FROM orders)) * 100 as data FROM orders GROUP BY color';
+
+  db.query(query, (error, results) => {
+    if (error) {
+      console.error('Error executing SQL query: ' + error.stack);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+    res.json(results);
+  });
+});
 
 
 
